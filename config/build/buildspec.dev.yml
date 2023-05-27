@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      nodejs: 18
+
+    commands:
+      - echo Installing serverless CLI
+      - npm i -g serverless
+      - echo Installing npm dependecies of notes service
+      - npm install
+    finally:
+      - command
+
+  build:
+    on-failure: ABORT
+    commands:
+      - echo Running Tests
+      - npm test
+      - echo Packaging the service
+      - serverless package --package my-artifact --stage dev
+
+artifacts:
+  files:
+    - my-artifact/*
+  name: SithiphonProjectArtifacts
+  discard-paths: no | yes
+
+cache:
+  paths:
+    - "node_modules/**/*"
