@@ -1,0 +1,63 @@
+notesTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: sithiphon-${self:provider.stage}
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions:
+      - AttributeName: notesId
+        AttributeType: S
+    KeySchema:
+      - AttributeName: notesId
+        KeyType: HASH
+
+#cognito user pool
+cognitoUserPool:
+  Type: AWS::Cognito::UserPool
+  Properties:
+    UserPoolName: sithiphon-${self:provider.stage}
+    #Addedby Wow
+    # LambdaConfig:
+    #   PreAuthentication:
+    #     - LambdaTrigger: true
+    #       LambdaFunctionArn: !GetAtt cognitoCustomMessageLambda.Arn
+
+# PreAuthLambdaFunction:
+#   Type: AWS::Lambda::Function
+#   Properties:
+#     FunctionName: PreAuthLambdaFunction
+#     Runtime: nodejs18.x
+
+#Ended by wow
+
+# User pool web client
+cognitoUserPoolWebclient:
+  Type: AWS::Cognito::UserPoolClient
+  Properties:
+    UserPoolId: !Ref cognitoUserPool
+    ClientName: web
+    AllowedOAuthFlowsUserPoolClient: true
+    SupportedIdentityProviders:
+      - COGNITO
+    AllowedOAuthScopes:
+      - phone
+      - email
+      - profile
+      - openid
+    AllowedOAuthFlows:
+      - implicit
+    CallbackURLs:
+      - http://localhost:3000
+
+# User pool domain
+cognitoUserPoolDomain:
+  Type: AWS::Cognito::UserPoolDomain
+  Properties:
+    UserPoolId: !Ref cognitoUserPool
+    Domain: sithiphon-${self:provider.stage}
+# Application parameters
+userPoolArnParam:
+  Type: AWS::SSM::Parameter
+  Properties:
+    Name: /notes/${self:provider.stage}/userPoolArn
+    Type: String
+    Value: !GetAtt cognitoUserPool.Arn
