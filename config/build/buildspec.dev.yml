@@ -26,7 +26,6 @@ artifacts:
   files:
     - my-artifact/*
   name: SithiphonProjectArtifacts
-  discard-paths: no | yes
 
 cache:
   paths:
